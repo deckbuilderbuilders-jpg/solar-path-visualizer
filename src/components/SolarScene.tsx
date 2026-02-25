@@ -5,30 +5,67 @@ interface SolarSceneProps {
 }
 
 const SolarScene = ({ currentStep }: SolarSceneProps) => {
+  // Calculate theme progress (0 = night, 1 = day)
+  // Step 0: 0, Step 1: 0.2, Step 2: 0.5, Step 3: 0.75, Step 4: 0.9, Step 5: 1
+  const themeProgress = Math.min(currentStep / 5, 1) * 0.2 + (Math.max(currentStep - 1, 0) / 4) * 0.8;
+
+  // Interpolate between two HSL colors
+  const interpolateColor = (
+    nightH: number, nightS: number, nightL: number,
+    dayH: number, dayS: number, dayL: number,
+    progress: number
+  ) => {
+    const h = Math.round(nightH + (dayH - nightH) * progress);
+    const s = Math.round(nightS + (dayS - nightS) * progress);
+    const l = Math.round(nightL + (dayL - nightL) * progress);
+    return `hsl(${h}, ${s}%, ${l}%)`;
+  };
+
+  // Sky gradient colors
+  const skyTopColor = interpolateColor(220, 35, 10, 200, 75, 80, themeProgress);
+  const skyMidColor = interpolateColor(215, 30, 18, 200, 70, 85, themeProgress);
+  const skyBotColor = interpolateColor(210, 25, 28, 195, 65, 88, themeProgress);
+
+  // Ground colors
+  const groundTopColor = interpolateColor(150, 20, 20, 110, 40, 45, themeProgress);
+  const groundBotColor = interpolateColor(150, 25, 12, 110, 35, 35, themeProgress);
+
+  // Panel colors
+  const panelTopColor = interpolateColor(215, 45, 38, 210, 50, 45, themeProgress);
+  const panelMidColor = interpolateColor(215, 50, 28, 210, 50, 35, themeProgress);
+  const panelBotColor = interpolateColor(215, 55, 22, 210, 50, 28, themeProgress);
+
+  // Sun/Moon position and opacity
+  const sunOpacity = Math.min(themeProgress, 0.7);
+  const starsOpacity = Math.max(0.4 - themeProgress * 0.5, 0);
+
+  // Ground texture color
+  const groundTextureColor = interpolateColor(150, 30, 25, 110, 40, 50, themeProgress);
+
   return (
     <svg viewBox="0 0 800 500" className="w-full h-full" style={{ maxHeight: "70vh" }}>
       <defs>
         <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(220, 35%, 10%)" />
-          <stop offset="60%" stopColor="hsl(215, 30%, 18%)" />
-          <stop offset="100%" stopColor="hsl(210, 25%, 28%)" />
+          <stop offset="0%" stopColor={skyTopColor} />
+          <stop offset="60%" stopColor={skyMidColor} />
+          <stop offset="100%" stopColor={skyBotColor} />
         </linearGradient>
         <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(150, 20%, 20%)" />
-          <stop offset="100%" stopColor="hsl(150, 25%, 12%)" />
+          <stop offset="0%" stopColor={groundTopColor} />
+          <stop offset="100%" stopColor={groundBotColor} />
         </linearGradient>
         <linearGradient id="panelGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(215, 45%, 38%)" />
-          <stop offset="50%" stopColor="hsl(215, 50%, 28%)" />
-          <stop offset="100%" stopColor="hsl(215, 55%, 22%)" />
+          <stop offset="0%" stopColor={panelTopColor} />
+          <stop offset="50%" stopColor={panelMidColor} />
+          <stop offset="100%" stopColor={panelBotColor} />
         </linearGradient>
         <linearGradient id="panelShine" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(215, 60%, 55%)" stopOpacity="0.4" />
+          <stop offset="0%" stopColor="hsl(215, 60%, 55%)" stopOpacity={String(0.4 * (1 - themeProgress * 0.5))} />
           <stop offset="50%" stopColor="hsl(215, 60%, 55%)" stopOpacity="0" />
-          <stop offset="100%" stopColor="hsl(215, 60%, 55%)" stopOpacity="0.1" />
+          <stop offset="100%" stopColor="hsl(215, 60%, 55%)" stopOpacity={String(0.1 * (1 - themeProgress * 0.5))} />
         </linearGradient>
         <linearGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
-          <stop offset="0%" stopColor="hsl(45, 95%, 70%)" stopOpacity="0.3" />
+          <stop offset="0%" stopColor="hsl(45, 95%, 70%)" stopOpacity={String(Math.max(0.3 * themeProgress, 0))} />
           <stop offset="100%" stopColor="hsl(45, 95%, 70%)" stopOpacity="0" />
         </linearGradient>
         <filter id="glow">
@@ -51,16 +88,16 @@ const SolarScene = ({ currentStep }: SolarSceneProps) => {
         [80, 40], [200, 25], [350, 55], [480, 30], [600, 50], [720, 35],
         [150, 80], [400, 20], [550, 70], [680, 15], [260, 45], [520, 85],
       ].map(([cx, cy], i) => (
-        <circle key={`star-${i}`} cx={cx} cy={cy} r={0.8} fill="hsl(0, 0%, 85%)" opacity={0.4 + (i % 3) * 0.2} />
+        <circle key={`star-${i}`} cx={cx} cy={cy} r={0.8} fill="hsl(0, 0%, 85%)" opacity={(0.4 + (i % 3) * 0.2) * starsOpacity} />
       ))}
 
-      {/* Moon/Sun glow */}
-      <circle cx="680" cy="80" r="80" fill="hsl(45, 90%, 70%)" opacity="0.04" filter="url(#softGlow)" />
-      <circle cx="680" cy="80" r="30" fill="hsl(45, 90%, 75%)" opacity="0.15" />
-      <circle cx="680" cy="80" r="18" fill="hsl(45, 95%, 80%)" opacity="0.6" />
+      {/* Moon/Sun glow - transitions from subtle to bright */}
+      <circle cx="680" cy="80" r="80" fill="hsl(45, 90%, 70%)" opacity={String(0.04 + sunOpacity * 0.3)} filter="url(#softGlow)" />
+      <circle cx="680" cy="80" r="30" fill="hsl(45, 90%, 75%)" opacity={String(0.15 + sunOpacity * 0.35)} />
+      <circle cx="680" cy="80" r="18" fill="hsl(45, 95%, 80%)" opacity={String(0.3 + sunOpacity * 0.4)} />
 
       {/* Horizon glow */}
-      <rect x="0" y="320" width="800" height="40" fill="hsl(210, 25%, 28%)" opacity="0.5" />
+      <rect x="0" y="320" width="800" height="40" fill={interpolateColor(210, 25, 28, 180, 60, 70, themeProgress)} opacity={String(0.5 * (1 - themeProgress * 0.3))} />
 
       {/* Ground */}
       <rect x="0" y="350" width="800" height="150" fill="url(#groundGrad)" />
@@ -73,35 +110,35 @@ const SolarScene = ({ currentStep }: SolarSceneProps) => {
           y1={385 + Math.sin(i * 1.5) * 8}
           x2={i * 42 + 15}
           y2={380 + Math.sin(i * 1.5) * 8}
-          stroke="hsl(150, 30%, 25%)"
+          stroke={groundTextureColor}
           strokeWidth="1"
-          opacity="0.3"
+          opacity={String(0.3 * (1 - themeProgress * 0.2))}
         />
       ))}
 
       {/* House — clean modern style */}
       <g>
         {/* Shadow */}
-        <ellipse cx="670" cy="360" rx="120" ry="8" fill="hsl(220, 20%, 5%)" opacity="0.4" />
+        <ellipse cx="670" cy="360" rx="120" ry="8" fill="hsl(220, 20%, 5%)" opacity={String(0.4 * (1 - themeProgress * 0.5))} />
         {/* Wall */}
-        <rect x="580" y="240" width="180" height="115" fill="hsl(220, 12%, 55%)" rx="2" />
-        <rect x="582" y="242" width="176" height="111" fill="hsl(220, 10%, 62%)" rx="1" />
+        <rect x="580" y="240" width="180" height="115" fill={interpolateColor(220, 12, 55, 200, 15, 75, themeProgress)} rx="2" />
+        <rect x="582" y="242" width="176" height="111" fill={interpolateColor(220, 10, 62, 200, 12, 82, themeProgress)} rx="1" />
         {/* Roof */}
-        <polygon points="570,240 670,180 770,240" fill="hsl(220, 15%, 30%)" />
-        <polygon points="575,240 670,184 765,240" fill="hsl(220, 12%, 35%)" />
+        <polygon points="570,240 670,180 770,240" fill={interpolateColor(220, 15, 30, 210, 25, 45, themeProgress)} />
+        <polygon points="575,240 670,184 765,240" fill={interpolateColor(220, 12, 35, 210, 20, 50, themeProgress)} />
         {/* Door */}
-        <rect x="648" y="295" width="32" height="60" fill="hsl(220, 15%, 35%)" rx="2" />
-        <rect x="650" y="297" width="28" height="56" fill="hsl(220, 12%, 40%)" rx="1" />
+        <rect x="648" y="295" width="32" height="60" fill={interpolateColor(220, 15, 35, 210, 20, 40, themeProgress)} rx="2" />
+        <rect x="650" y="297" width="28" height="56" fill={interpolateColor(220, 12, 40, 210, 18, 45, themeProgress)} rx="1" />
         <circle cx="671" cy="327" r="2" fill="hsl(45, 50%, 60%)" />
-        {/* Windows — lit up warm */}
-        <rect x="598" y="265" width="34" height="28" fill="hsl(45, 50%, 55%)" rx="1" opacity="0.7" />
-        <rect x="600" y="267" width="30" height="24" fill="hsl(45, 60%, 65%)" rx="1" opacity="0.5" />
-        <line x1="615" y1="265" x2="615" y2="293" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
-        <line x1="598" y1="279" x2="632" y2="279" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
-        <rect x="698" y="265" width="34" height="28" fill="hsl(45, 50%, 55%)" rx="1" opacity="0.7" />
-        <rect x="700" y="267" width="30" height="24" fill="hsl(45, 60%, 65%)" rx="1" opacity="0.5" />
-        <line x1="715" y1="265" x2="715" y2="293" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
-        <line x1="698" y1="279" x2="732" y2="279" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
+        {/* Windows — lit up warm, fade glow in daylight */}
+        <rect x="598" y="265" width="34" height="28" fill="hsl(45, 50%, 55%)" rx="1" opacity={String(0.7 - themeProgress * 0.4)} />
+        <rect x="600" y="267" width="30" height="24" fill="hsl(45, 60%, 65%)" rx="1" opacity={String(0.5 - themeProgress * 0.3)} />
+        <line x1="615" y1="265" x2="615" y2="293" stroke={interpolateColor(220, 10, 55, 210, 15, 50, themeProgress)} strokeWidth="1.5" />
+        <line x1="598" y1="279" x2="632" y2="279" stroke={interpolateColor(220, 10, 55, 210, 15, 50, themeProgress)} strokeWidth="1.5" />
+        <rect x="698" y="265" width="34" height="28" fill="hsl(45, 50%, 55%)" rx="1" opacity={String(0.7 - themeProgress * 0.4)} />
+        <rect x="700" y="267" width="30" height="24" fill="hsl(45, 60%, 65%)" rx="1" opacity={String(0.5 - themeProgress * 0.3)} />
+        <line x1="715" y1="265" x2="715" y2="293" stroke={interpolateColor(220, 10, 55, 210, 15, 50, themeProgress)} strokeWidth="1.5" />
+        <line x1="698" y1="279" x2="732" y2="279" stroke={interpolateColor(220, 10, 55, 210, 15, 50, themeProgress)} strokeWidth="1.5" />
       </g>
 
       {/* Electrical panel on house */}

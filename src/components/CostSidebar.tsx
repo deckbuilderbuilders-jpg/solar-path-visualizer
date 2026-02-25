@@ -50,7 +50,7 @@ export const STEPS: StepData[] = [
     title: "Battery Storage",
     description: "A battery backup stores excess energy for use at night or during outages, maximizing your energy independence.",
     items: [
-      { name: "10kWh LiFePO4 battery system", cost: 3850 },
+      { name: "10kWh LiFePO4 battery system", cost: 7700 },
     ],
   },
 ];
@@ -160,7 +160,7 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
             key={totalCost}
             initial={{ scale: 1.15 }}
             animate={{ scale: 1 }}
-            className="text-lg font-bold text-foreground tabular-nums"
+            className="text-xs font-bold text-red-500 tabular-nums"
           >
             ${totalCost.toLocaleString()}
           </motion.span>
@@ -214,11 +214,11 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
                 </motion.div>
               </div>
 
-              {/* Net cost */}
+              {/* Net Profit */}
               <div className="mt-3 pt-2 border-t border-border">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] text-muted-foreground">Total incentives</span>
-                  <span className="text-xs font-bold text-primary tabular-nums">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-muted-foreground">Total Incentives</span>
+                  <span className="text-sm font-bold text-green-600 tabular-nums">
                     ${(totalRevenue + taxCredit).toLocaleString()}
                   </span>
                 </div>
@@ -226,21 +226,21 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1 }}
-                  className="flex justify-between items-center rounded-md bg-primary/10 px-3 py-2"
+                  className="flex justify-between items-center rounded-md bg-green-600/10 px-3 py-3 border border-green-600/20"
                 >
-                  <span className="text-xs font-bold text-foreground">Net Cost</span>
-                  <span className="text-lg font-bold text-primary tabular-nums">
-                    ${Math.max(0, fullCost - totalRevenue - taxCredit).toLocaleString()}
+                  <span className="text-sm font-bold text-foreground">Net Profit</span>
+                  <span className="text-xl font-bold text-green-600 tabular-nums">
+                    +${(totalRevenue + taxCredit - fullCost).toLocaleString()}
                   </span>
                 </motion.div>
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.2 }}
-                  className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed"
+                  className="text-[10px] text-muted-foreground mt-2 leading-relaxed"
                 >
-                  You save {Math.round(((totalRevenue + taxCredit) / fullCost) * 100)}% through rebates and tax credits. 
-                  25+ year panel warranty included.
+                  Your system generates {Math.round(((totalRevenue + taxCredit) / fullCost) * 100)}% profit through rebates and tax credits.
+                  25+ year panel warranty included. You make money while saving the planet.
                 </motion.p>
               </div>
             </div>
