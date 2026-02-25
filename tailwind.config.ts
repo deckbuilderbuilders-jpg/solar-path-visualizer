@@ -61,6 +61,9 @@ export default {
         "step-active": "hsl(var(--step-active))",
         "step-done": "hsl(var(--step-done))",
         "step-pending": "hsl(var(--step-pending))",
+        revenue: "hsl(var(--revenue))",
+        rebate: "hsl(var(--rebate))",
+        "tax-credit": "hsl(var(--tax-credit))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -79,20 +82,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {

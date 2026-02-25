@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, TrendingUp, DollarSign, Zap } from "lucide-react";
 
 export interface StepData {
   id: number;
@@ -14,19 +14,18 @@ export const STEPS: StepData[] = [
     title: "Posts & Frames",
     description: "Steel posts are driven into the ground and mounting frames are installed to support the panels at the optimal angle.",
     items: [
-      { name: "Ground-mount posts (x8)", cost: 1200 },
-      { name: "Aluminum racking frame", cost: 1800 },
-      { name: "Installation labor", cost: 500 },
+      { name: "Ground-mount posts & frames", cost: 500 },
+      { name: "Installation labor", cost: 350 },
     ],
   },
   {
     id: 2,
     title: "Solar Panels",
-    description: "High-efficiency monocrystalline panels are secured to the racking system, positioned for maximum sun exposure.",
+    description: "Eight high-efficiency 560W monocrystalline panels are secured to the racking system for maximum energy production.",
     items: [
-      { name: "400W panels (x6)", cost: 7200 },
-      { name: "Panel mounting hardware", cost: 400 },
-      { name: "Installation labor", cost: 800 },
+      { name: "560W panels × 8", cost: 1480 },
+      { name: "Mounting hardware", cost: 250 },
+      { name: "Installation labor", cost: 400 },
     ],
   },
   {
@@ -34,10 +33,7 @@ export const STEPS: StepData[] = [
     title: "Wiring & Conduit",
     description: "Electrical wiring connects the panels to the inverter and main panel. Conduit protects the cables underground.",
     items: [
-      { name: "DC wiring & connectors", cost: 600 },
-      { name: "Underground conduit", cost: 450 },
-      { name: "AC wiring to panel", cost: 350 },
-      { name: "Electrician labor", cost: 600 },
+      { name: "Complete wiring package", cost: 1800 },
     ],
   },
   {
@@ -45,9 +41,8 @@ export const STEPS: StepData[] = [
     title: "System Connection",
     description: "The inverter converts DC power to AC. The system is connected to your home's electrical panel and the utility grid.",
     items: [
-      { name: "Hybrid inverter", cost: 2200 },
-      { name: "Meter & monitoring", cost: 350 },
-      { name: "Permits & inspection", cost: 450 },
+      { name: "Hybrid inverter", cost: 1050 },
+      { name: "Inspection & permits", cost: 750 },
     ],
   },
   {
@@ -55,11 +50,15 @@ export const STEPS: StepData[] = [
     title: "Battery Storage",
     description: "A battery backup stores excess energy for use at night or during outages, maximizing your energy independence.",
     items: [
-      { name: "10kWh LiFePO4 battery", cost: 6500 },
-      { name: "Battery enclosure", cost: 400 },
-      { name: "Installation & config", cost: 600 },
+      { name: "10kWh LiFePO4 battery system", cost: 3850 },
     ],
   },
+];
+
+const REVENUE = [
+  { name: "REC Payment", amount: 6894.72, icon: Zap, color: "text-primary" },
+  { name: "Smart Inverter Rebate", amount: 1344, icon: DollarSign, color: "text-secondary" },
+  { name: "Battery Rebate", amount: 6000, icon: DollarSign, color: "text-secondary" },
 ];
 
 interface CostSidebarProps {
@@ -72,13 +71,21 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
     (sum, step) => sum + step.items.reduce((s, item) => s + item.cost, 0),
     0
   );
+  const fullCost = STEPS.reduce(
+    (sum, step) => sum + step.items.reduce((s, item) => s + item.cost, 0),
+    0
+  );
+
+  const taxCredit = fullCost * 0.4;
+  const totalRevenue = REVENUE.reduce((s, r) => s + r.amount, 0);
+  const showEconomics = currentStep >= 5;
 
   return (
     <div className="flex flex-col h-full">
-      <h2 className="text-lg font-bold text-foreground mb-1">Cost Breakdown</h2>
+      <h2 className="text-sm font-bold text-foreground uppercase tracking-widest mb-0.5">Investment</h2>
       <p className="text-xs text-muted-foreground mb-4">Click through each step to see costs</p>
 
-      <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+      <div className="flex-1 space-y-2 overflow-y-auto pr-1">
         {STEPS.map((step) => {
           const isActive = step.id === currentStep;
           const isDone = step.id < currentStep;
@@ -89,17 +96,17 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
             <motion.div
               key={step.id}
               layout
-              className={`rounded-lg border p-3 transition-colors ${
+              className={`rounded-md border p-2.5 transition-all duration-300 ${
                 isActive
-                  ? "border-primary bg-primary/5"
+                  ? "border-primary/40 bg-primary/5"
                   : isDone
-                  ? "border-step-done/30 bg-step-done/5"
-                  : "border-border bg-card opacity-50"
+                  ? "border-step-done/20 bg-step-done/5"
+                  : "border-border bg-card opacity-40"
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2">
                 <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${
                     isDone
                       ? "bg-step-done text-primary-foreground"
                       : isActive
@@ -107,12 +114,12 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
                       : "bg-step-pending text-muted-foreground"
                   }`}
                 >
-                  {isDone ? <Check size={12} /> : step.id}
+                  {isDone ? <Check size={11} /> : step.id}
                 </div>
-                <span className={`text-sm font-semibold ${isPending ? "text-muted-foreground" : "text-foreground"}`}>
+                <span className={`text-xs font-semibold ${isPending ? "text-muted-foreground" : "text-foreground"}`}>
                   {step.title}
                 </span>
-                <span className="ml-auto text-sm font-bold text-foreground">
+                <span className="ml-auto text-xs font-bold text-foreground tabular-nums">
                   {isPending ? "—" : `$${stepTotal.toLocaleString()}`}
                 </span>
               </div>
@@ -127,13 +134,13 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
                     className="overflow-hidden"
                   >
                     {isActive && (
-                      <p className="text-xs text-muted-foreground mb-2 mt-1">{step.description}</p>
+                      <p className="text-[11px] text-muted-foreground mb-1.5 mt-1 leading-relaxed">{step.description}</p>
                     )}
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                       {step.items.map((item, i) => (
-                        <div key={i} className="flex justify-between text-xs">
+                        <div key={i} className="flex justify-between text-[11px]">
                           <span className="text-muted-foreground">{item.name}</span>
-                          <span className="text-foreground font-medium">${item.cost.toLocaleString()}</span>
+                          <span className="text-foreground font-medium tabular-nums">${item.cost.toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -146,28 +153,100 @@ const CostSidebar = ({ currentStep }: CostSidebarProps) => {
       </div>
 
       {/* Total */}
-      <div className="mt-4 pt-3 border-t border-border">
+      <div className="mt-3 pt-3 border-t border-border">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-semibold text-foreground">Total Investment</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Cost</span>
           <motion.span
             key={totalCost}
-            initial={{ scale: 1.2 }}
+            initial={{ scale: 1.15 }}
             animate={{ scale: 1 }}
-            className="text-xl font-bold text-primary"
+            className="text-lg font-bold text-foreground tabular-nums"
           >
             ${totalCost.toLocaleString()}
           </motion.span>
         </div>
-        {currentStep >= 5 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-xs text-muted-foreground mt-1"
-          >
-            Est. payback period: 6-8 years · 25+ year panel warranty
-          </motion.p>
-        )}
       </div>
+
+      {/* Economics section — appears after all steps */}
+      <AnimatePresence>
+        {showEconomics && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 pt-3 border-t border-border">
+              <div className="flex items-center gap-1.5 mb-2">
+                <TrendingUp size={13} className="text-primary" />
+                <span className="text-xs font-bold text-primary uppercase tracking-widest">Revenue & Savings</span>
+              </div>
+
+              <div className="space-y-1.5">
+                {REVENUE.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + i * 0.15 }}
+                    className="flex justify-between items-center text-[11px]"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <item.icon size={11} className={item.color} />
+                      <span className="text-muted-foreground">{item.name}</span>
+                    </div>
+                    <span className="text-primary font-semibold tabular-nums">+${item.amount.toLocaleString()}</span>
+                  </motion.div>
+                ))}
+
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.85 }}
+                  className="flex justify-between items-center text-[11px]"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <DollarSign size={11} className="text-accent" />
+                    <span className="text-muted-foreground">Tax Credits (40%)</span>
+                  </div>
+                  <span className="text-accent font-semibold tabular-nums">+${taxCredit.toLocaleString()}</span>
+                </motion.div>
+              </div>
+
+              {/* Net cost */}
+              <div className="mt-3 pt-2 border-t border-border">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] text-muted-foreground">Total incentives</span>
+                  <span className="text-xs font-bold text-primary tabular-nums">
+                    ${(totalRevenue + taxCredit).toLocaleString()}
+                  </span>
+                </div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="flex justify-between items-center rounded-md bg-primary/10 px-3 py-2"
+                >
+                  <span className="text-xs font-bold text-foreground">Net Cost</span>
+                  <span className="text-lg font-bold text-primary tabular-nums">
+                    ${Math.max(0, fullCost - totalRevenue - taxCredit).toLocaleString()}
+                  </span>
+                </motion.div>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2 }}
+                  className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed"
+                >
+                  You save {Math.round(((totalRevenue + taxCredit) / fullCost) * 100)}% through rebates and tax credits. 
+                  25+ year panel warranty included.
+                </motion.p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

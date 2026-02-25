@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface SolarSceneProps {
   currentStep: number;
@@ -7,74 +7,101 @@ interface SolarSceneProps {
 const SolarScene = ({ currentStep }: SolarSceneProps) => {
   return (
     <svg viewBox="0 0 800 500" className="w-full h-full" style={{ maxHeight: "70vh" }}>
-      {/* Sky */}
       <defs>
         <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(205, 75%, 65%)" />
-          <stop offset="100%" stopColor="hsl(205, 75%, 82%)" />
+          <stop offset="0%" stopColor="hsl(220, 35%, 10%)" />
+          <stop offset="60%" stopColor="hsl(215, 30%, 18%)" />
+          <stop offset="100%" stopColor="hsl(210, 25%, 28%)" />
         </linearGradient>
-        <linearGradient id="grassGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(120, 35%, 52%)" />
-          <stop offset="100%" stopColor="hsl(120, 40%, 38%)" />
+        <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="hsl(150, 20%, 20%)" />
+          <stop offset="100%" stopColor="hsl(150, 25%, 12%)" />
         </linearGradient>
         <linearGradient id="panelGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(215, 55%, 50%)" />
-          <stop offset="100%" stopColor="hsl(215, 60%, 35%)" />
+          <stop offset="0%" stopColor="hsl(215, 45%, 38%)" />
+          <stop offset="50%" stopColor="hsl(215, 50%, 28%)" />
+          <stop offset="100%" stopColor="hsl(215, 55%, 22%)" />
         </linearGradient>
+        <linearGradient id="panelShine" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="hsl(215, 60%, 55%)" stopOpacity="0.4" />
+          <stop offset="50%" stopColor="hsl(215, 60%, 55%)" stopOpacity="0" />
+          <stop offset="100%" stopColor="hsl(215, 60%, 55%)" stopOpacity="0.1" />
+        </linearGradient>
+        <linearGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5" fx="0.5" fy="0.5">
+          <stop offset="0%" stopColor="hsl(45, 95%, 70%)" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="hsl(45, 95%, 70%)" stopOpacity="0" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="softGlow">
+          <feGaussianBlur stdDeviation="8" />
+        </filter>
       </defs>
 
-      <rect x="0" y="0" width="800" height="350" fill="url(#skyGrad)" />
+      {/* Sky */}
+      <rect x="0" y="0" width="800" height="360" fill="url(#skyGrad)" />
 
-      {/* Sun */}
-      <circle cx="120" cy="80" r="40" fill="hsl(45, 95%, 65%)" opacity="0.9" />
-      <circle cx="120" cy="80" r="50" fill="hsl(45, 95%, 65%)" opacity="0.15" />
+      {/* Stars */}
+      {[
+        [80, 40], [200, 25], [350, 55], [480, 30], [600, 50], [720, 35],
+        [150, 80], [400, 20], [550, 70], [680, 15], [260, 45], [520, 85],
+      ].map(([cx, cy], i) => (
+        <circle key={`star-${i}`} cx={cx} cy={cy} r={0.8} fill="hsl(0, 0%, 85%)" opacity={0.4 + (i % 3) * 0.2} />
+      ))}
 
-      {/* Clouds */}
-      <g opacity="0.7">
-        <ellipse cx="300" cy="70" rx="50" ry="18" fill="white" />
-        <ellipse cx="330" cy="60" rx="35" ry="15" fill="white" />
-        <ellipse cx="270" cy="65" rx="30" ry="12" fill="white" />
-      </g>
-      <g opacity="0.5">
-        <ellipse cx="600" cy="100" rx="40" ry="14" fill="white" />
-        <ellipse cx="625" cy="92" rx="28" ry="12" fill="white" />
-      </g>
+      {/* Moon/Sun glow */}
+      <circle cx="680" cy="80" r="80" fill="hsl(45, 90%, 70%)" opacity="0.04" filter="url(#softGlow)" />
+      <circle cx="680" cy="80" r="30" fill="hsl(45, 90%, 75%)" opacity="0.15" />
+      <circle cx="680" cy="80" r="18" fill="hsl(45, 95%, 80%)" opacity="0.6" />
+
+      {/* Horizon glow */}
+      <rect x="0" y="320" width="800" height="40" fill="hsl(210, 25%, 28%)" opacity="0.5" />
 
       {/* Ground */}
-      <rect x="0" y="340" width="800" height="160" fill="url(#grassGrad)" />
+      <rect x="0" y="350" width="800" height="150" fill="url(#groundGrad)" />
 
-      {/* Grass texture lines */}
-      {Array.from({ length: 30 }).map((_, i) => (
+      {/* Subtle ground texture */}
+      {Array.from({ length: 20 }).map((_, i) => (
         <line
-          key={i}
-          x1={20 + i * 26}
-          y1={380 + Math.sin(i) * 10}
-          x2={20 + i * 26 - 3}
-          y2={370 + Math.sin(i) * 10}
-          stroke="hsl(120, 45%, 42%)"
-          strokeWidth="1.5"
-          opacity="0.5"
+          key={`tex-${i}`}
+          x1={i * 42}
+          y1={385 + Math.sin(i * 1.5) * 8}
+          x2={i * 42 + 15}
+          y2={380 + Math.sin(i * 1.5) * 8}
+          stroke="hsl(150, 30%, 25%)"
+          strokeWidth="1"
+          opacity="0.3"
         />
       ))}
 
-      {/* House */}
+      {/* House — clean modern style */}
       <g>
+        {/* Shadow */}
+        <ellipse cx="670" cy="360" rx="120" ry="8" fill="hsl(220, 20%, 5%)" opacity="0.4" />
         {/* Wall */}
-        <rect x="580" y="230" width="180" height="120" fill="hsl(35, 30%, 80%)" stroke="hsl(30, 25%, 65%)" strokeWidth="2" />
+        <rect x="580" y="240" width="180" height="115" fill="hsl(220, 12%, 55%)" rx="2" />
+        <rect x="582" y="242" width="176" height="111" fill="hsl(220, 10%, 62%)" rx="1" />
         {/* Roof */}
-        <polygon points="565,230 670,170 775,230" fill="hsl(15, 35%, 35%)" stroke="hsl(15, 30%, 28%)" strokeWidth="2" />
+        <polygon points="570,240 670,180 770,240" fill="hsl(220, 15%, 30%)" />
+        <polygon points="575,240 670,184 765,240" fill="hsl(220, 12%, 35%)" />
         {/* Door */}
-        <rect x="645" y="290" width="35" height="60" fill="hsl(25, 40%, 40%)" rx="2" />
-        <circle cx="673" cy="322" r="2.5" fill="hsl(45, 60%, 60%)" />
-        {/* Windows */}
-        <rect x="600" y="260" width="30" height="30" fill="hsl(205, 50%, 75%)" stroke="hsl(0, 0%, 95%)" strokeWidth="2" rx="1" />
-        <line x1="615" y1="260" x2="615" y2="290" stroke="hsl(0, 0%, 95%)" strokeWidth="1.5" />
-        <line x1="600" y1="275" x2="630" y2="275" stroke="hsl(0, 0%, 95%)" strokeWidth="1.5" />
-        <rect x="700" y="260" width="30" height="30" fill="hsl(205, 50%, 75%)" stroke="hsl(0, 0%, 95%)" strokeWidth="2" rx="1" />
-        <line x1="715" y1="260" x2="715" y2="290" stroke="hsl(0, 0%, 95%)" strokeWidth="1.5" />
-        <line x1="700" y1="275" x2="730" y2="275" stroke="hsl(0, 0%, 95%)" strokeWidth="1.5" />
-        {/* Chimney */}
-        <rect x="710" y="180" width="20" height="50" fill="hsl(0, 15%, 45%)" />
+        <rect x="648" y="295" width="32" height="60" fill="hsl(220, 15%, 35%)" rx="2" />
+        <rect x="650" y="297" width="28" height="56" fill="hsl(220, 12%, 40%)" rx="1" />
+        <circle cx="671" cy="327" r="2" fill="hsl(45, 50%, 60%)" />
+        {/* Windows — lit up warm */}
+        <rect x="598" y="265" width="34" height="28" fill="hsl(45, 50%, 55%)" rx="1" opacity="0.7" />
+        <rect x="600" y="267" width="30" height="24" fill="hsl(45, 60%, 65%)" rx="1" opacity="0.5" />
+        <line x1="615" y1="265" x2="615" y2="293" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
+        <line x1="598" y1="279" x2="632" y2="279" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
+        <rect x="698" y="265" width="34" height="28" fill="hsl(45, 50%, 55%)" rx="1" opacity="0.7" />
+        <rect x="700" y="267" width="30" height="24" fill="hsl(45, 60%, 65%)" rx="1" opacity="0.5" />
+        <line x1="715" y1="265" x2="715" y2="293" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
+        <line x1="698" y1="279" x2="732" y2="279" stroke="hsl(220, 10%, 55%)" strokeWidth="1.5" />
       </g>
 
       {/* Electrical panel on house */}
@@ -84,10 +111,10 @@ const SolarScene = ({ currentStep }: SolarSceneProps) => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <rect x="570" y="280" width="18" height="25" fill="hsl(200, 10%, 50%)" stroke="hsl(200, 10%, 35%)" strokeWidth="1.5" rx="2" />
-          <line x1="575" y1="288" x2="583" y2="288" stroke="hsl(120, 50%, 50%)" strokeWidth="1.5" />
-          <line x1="575" y1="293" x2="583" y2="293" stroke="hsl(0, 60%, 50%)" strokeWidth="1.5" />
-          <line x1="575" y1="298" x2="583" y2="298" stroke="hsl(45, 70%, 55%)" strokeWidth="1.5" />
+          <rect x="572" y="285" width="16" height="22" fill="hsl(220, 10%, 40%)" stroke="hsl(220, 10%, 30%)" strokeWidth="1" rx="2" />
+          <line x1="576" y1="292" x2="584" y2="292" stroke="hsl(152, 60%, 50%)" strokeWidth="1.5" />
+          <line x1="576" y1="296" x2="584" y2="296" stroke="hsl(0, 60%, 50%)" strokeWidth="1.5" />
+          <line x1="576" y1="300" x2="584" y2="300" stroke="hsl(45, 70%, 55%)" strokeWidth="1.5" />
         </motion.g>
       )}
 
@@ -96,38 +123,34 @@ const SolarScene = ({ currentStep }: SolarSceneProps) => {
         <motion.g
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, staggerChildren: 0.1 }}
+          transition={{ duration: 0.6 }}
         >
-          {/* Ground posts */}
-          {[100, 200, 300, 400].map((x, i) => (
+          {[100, 180, 260, 340, 420].map((x, i) => (
             <motion.g
               key={`post-${i}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15, duration: 0.4 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
             >
-              {/* Post in ground */}
-              <rect x={x - 4} y="330" width="8" height="30" fill="hsl(200, 8%, 55%)" stroke="hsl(200, 8%, 40%)" strokeWidth="1" />
-              {/* Frame rail */}
-              <rect x={x - 3} y="295" width="6" height="40" fill="hsl(200, 8%, 60%)" stroke="hsl(200, 8%, 45%)" strokeWidth="1" />
+              <rect x={x - 3} y="340" width="6" height="20" fill="hsl(220, 8%, 45%)" />
+              <rect x={x - 2.5} y="300" width="5" height="45" fill="hsl(220, 8%, 50%)" />
             </motion.g>
           ))}
-          {/* Horizontal frame rails */}
           <motion.rect
-            x="95" y="295" width="310" height="4"
-            fill="hsl(200, 8%, 60%)" stroke="hsl(200, 8%, 45%)" strokeWidth="0.5"
+            x="95" y="300" width="330" height="3"
+            fill="hsl(220, 8%, 50%)"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            style={{ transformOrigin: "95px 301px" }}
+          />
+          <motion.rect
+            x="95" y="325" width="330" height="3"
+            fill="hsl(220, 8%, 50%)"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
-            style={{ transformOrigin: "95px 297px" }}
-          />
-          <motion.rect
-            x="95" y="320" width="310" height="4"
-            fill="hsl(200, 8%, 60%)" stroke="hsl(200, 8%, 45%)" strokeWidth="0.5"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-            style={{ transformOrigin: "95px 322px" }}
+            style={{ transformOrigin: "95px 326px" }}
           />
         </motion.g>
       )}
@@ -135,93 +158,78 @@ const SolarScene = ({ currentStep }: SolarSceneProps) => {
       {/* Step 2: Solar Panels */}
       {currentStep >= 2 && (
         <motion.g>
-          {[0, 1, 2, 3, 4, 5].map((i) => {
-            const col = i % 3;
-            const row = Math.floor(i / 3);
-            const x = 105 + col * 100;
-            const y = 288 + row * 20;
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+            const col = i % 4;
+            const row = Math.floor(i / 4);
+            const x = 100 + col * 82;
+            const y = 293 + row * 19;
             return (
               <motion.g
                 key={`panel-${i}`}
                 initial={{ opacity: 0, scale: 0.3 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.12, duration: 0.4 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
               >
-                <rect x={x} y={y} width="90" height="16" fill="url(#panelGrad)" stroke="hsl(200, 8%, 55%)" strokeWidth="1" rx="1" />
-                {/* Panel grid lines */}
-                <line x1={x + 30} y1={y} x2={x + 30} y2={y + 16} stroke="hsl(215, 40%, 45%)" strokeWidth="0.5" opacity="0.5" />
-                <line x1={x + 60} y1={y} x2={x + 60} y2={y + 16} stroke="hsl(215, 40%, 45%)" strokeWidth="0.5" opacity="0.5" />
-                <line x1={x} y1={y + 8} x2={x + 90} y2={y + 8} stroke="hsl(215, 40%, 45%)" strokeWidth="0.5" opacity="0.5" />
+                <rect x={x} y={y} width="78" height="16" fill="url(#panelGrad)" stroke="hsl(220, 8%, 45%)" strokeWidth="0.8" rx="1" />
+                <rect x={x} y={y} width="78" height="16" fill="url(#panelShine)" rx="1" />
+                {/* Grid lines */}
+                <line x1={x + 19.5} y1={y} x2={x + 19.5} y2={y + 16} stroke="hsl(215, 35%, 35%)" strokeWidth="0.3" />
+                <line x1={x + 39} y1={y} x2={x + 39} y2={y + 16} stroke="hsl(215, 35%, 35%)" strokeWidth="0.3" />
+                <line x1={x + 58.5} y1={y} x2={x + 58.5} y2={y + 16} stroke="hsl(215, 35%, 35%)" strokeWidth="0.3" />
+                <line x1={x} y1={y + 8} x2={x + 78} y2={y + 8} stroke="hsl(215, 35%, 35%)" strokeWidth="0.3" />
               </motion.g>
             );
           })}
         </motion.g>
       )}
 
-      {/* Step 3: Wires */}
+      {/* Step 3: Wiring */}
       {currentStep >= 3 && (
-        <motion.g
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          {/* Wire from panels to house */}
+        <motion.g>
           <motion.path
-            d="M 405 310 C 430 310, 450 360, 470 370 C 490 380, 520 370, 540 350 C 555 335, 565 310, 570 295"
+            d="M 428 310 C 450 310, 465 355, 480 362 C 495 370, 530 360, 550 340 C 560 330, 568 310, 572 296"
             fill="none"
-            stroke="hsl(25, 85%, 55%)"
-            strokeWidth="3"
-            strokeDasharray="6 3"
+            stroke="hsl(35, 80%, 55%)"
+            strokeWidth="2.5"
+            strokeDasharray="5 3"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
           />
-          {/* Conduit at ground */}
           <motion.rect
-            x="450" y="365" width="100" height="6" rx="3"
-            fill="hsl(200, 8%, 50%)"
+            x="460" y="360" width="90" height="5" rx="2.5"
+            fill="hsl(220, 8%, 40%)"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           />
-          {/* Wire label */}
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-          >
-            <rect x="455" y="385" width="55" height="16" rx="3" fill="hsl(25, 85%, 55%)" opacity="0.15" />
-            <text x="482" y="396" textAnchor="middle" fontSize="8" fill="hsl(25, 70%, 40%)" fontWeight="600">AC/DC</text>
+          <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
+            <rect x="470" y="378" width="45" height="14" rx="7" fill="hsl(35, 80%, 55%)" opacity="0.15" />
+            <text x="492" y="388" textAnchor="middle" fontSize="7" fill="hsl(35, 70%, 55%)" fontWeight="600" fontFamily="Inter, sans-serif">AC/DC</text>
           </motion.g>
         </motion.g>
       )}
 
-      {/* Step 4: Connection indicator */}
+      {/* Step 4: Inverter */}
       {currentStep >= 4 && (
-        <motion.g
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          {/* Inverter box */}
+        <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
           <motion.g
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
           >
-            <rect x="500" y="300" width="30" height="35" fill="hsl(200, 10%, 85%)" stroke="hsl(200, 10%, 55%)" strokeWidth="1.5" rx="3" />
-            <text x="515" y="314" textAnchor="middle" fontSize="6" fill="hsl(200, 10%, 35%)" fontWeight="700">INV</text>
-            {/* Status LED */}
+            <rect x="505" y="305" width="26" height="30" fill="hsl(220, 10%, 70%)" stroke="hsl(220, 10%, 45%)" strokeWidth="1" rx="3" />
+            <rect x="507" y="307" width="22" height="26" fill="hsl(220, 8%, 75%)" rx="2" />
+            <text x="518" y="318" textAnchor="middle" fontSize="5.5" fill="hsl(220, 10%, 30%)" fontWeight="700" fontFamily="Inter, sans-serif">INV</text>
             <motion.circle
-              cx="515" cy="325"
-              r="3"
-              fill="hsl(120, 70%, 50%)"
+              cx="518" cy="327" r="2.5"
+              fill="hsl(152, 70%, 50%)"
+              filter="url(#glow)"
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             />
           </motion.g>
-          {/* Connection line to panel */}
-          <line x1="530" y1="317" x2="570" y2="292" stroke="hsl(200, 10%, 50%)" strokeWidth="2" />
+          <line x1="531" y1="320" x2="572" y2="296" stroke="hsl(220, 10%, 45%)" strokeWidth="1.5" />
         </motion.g>
       )}
 
@@ -232,39 +240,37 @@ const SolarScene = ({ currentStep }: SolarSceneProps) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          {/* Battery unit */}
-          <rect x="540" y="335" width="28" height="18" rx="3" fill="hsl(145, 60%, 40%)" stroke="hsl(145, 55%, 30%)" strokeWidth="1.5" />
-          <rect x="548" y="331" width="12" height="5" rx="1" fill="hsl(145, 55%, 30%)" />
-          {/* Battery level bars */}
-          <motion.rect x="545" y="340" width="5" height="8" rx="1" fill="hsl(145, 70%, 55%)"
-            initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: 0.3 }} style={{ transformOrigin: "bottom" }}
-          />
-          <motion.rect x="552" y="340" width="5" height="8" rx="1" fill="hsl(145, 70%, 55%)"
-            initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: 0.5 }} style={{ transformOrigin: "bottom" }}
-          />
-          <motion.rect x="559" y="340" width="5" height="8" rx="1" fill="hsl(145, 70%, 55%)"
-            initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: 0.7 }} style={{ transformOrigin: "bottom" }}
-          />
-          {/* Wire from battery to inverter */}
-          <line x1="540" y1="342" x2="530" y2="330" stroke="hsl(145, 50%, 35%)" strokeWidth="2" />
-          {/* Label */}
-          <text x="554" y="365" textAnchor="middle" fontSize="7" fill="hsl(145, 50%, 30%)" fontWeight="600">10kWh</text>
+          <rect x="538" y="340" width="30" height="18" rx="3" fill="hsl(152, 50%, 30%)" stroke="hsl(152, 45%, 22%)" strokeWidth="1.5" />
+          <rect x="547" y="336" width="12" height="5" rx="1.5" fill="hsl(152, 45%, 22%)" />
+          {[0, 1, 2].map((i) => (
+            <motion.rect
+              key={`batt-${i}`}
+              x={543 + i * 8} y="344" width="6" height="9" rx="1"
+              fill="hsl(152, 60%, 45%)"
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ delay: 0.3 + i * 0.2 }}
+              style={{ transformOrigin: "bottom" }}
+            />
+          ))}
+          <line x1="538" y1="347" x2="531" y2="333" stroke="hsl(152, 40%, 30%)" strokeWidth="1.5" />
+          <text x="553" y="370" textAnchor="middle" fontSize="6.5" fill="hsl(152, 40%, 40%)" fontWeight="600" fontFamily="Inter, sans-serif">10kWh</text>
         </motion.g>
       )}
 
-      {/* Energy flow animation when complete */}
+      {/* Energy flow particles */}
       {currentStep >= 4 && (
         <motion.g>
           {[0, 1, 2].map((i) => (
             <motion.circle
               key={`energy-${i}`}
-              r="3"
-              fill="hsl(45, 95%, 60%)"
-              opacity="0.8"
-              initial={{ offsetDistance: "0%" }}
+              r="2.5"
+              fill="hsl(45, 95%, 65%)"
+              filter="url(#glow)"
+              opacity="0.9"
               animate={{
-                cx: [200, 405, 515, 570],
-                cy: [300, 310, 317, 292],
+                cx: [200, 428, 518, 572],
+                cy: [305, 310, 320, 296],
               }}
               transition={{
                 duration: 3,
