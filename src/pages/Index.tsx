@@ -27,18 +27,18 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-border px-6 py-3 flex items-center justify-between bg-card">
+      <header className="border-b border-border px-6 py-3 flex items-center justify-between bg-card/50 backdrop-blur-sm">
         <div>
-          <h1 className="text-lg font-bold text-foreground">Solar Installation Guide</h1>
-          <p className="text-xs text-muted-foreground">Ground-Mount System — Interactive Walkthrough</p>
+          <h1 className="text-sm font-bold text-foreground tracking-tight">Solar Installation Guide</h1>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Ground-Mount System</p>
         </div>
         {currentStep > 0 && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {STEPS.map((step) => (
               <div
                 key={step.id}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  step.id <= currentStep ? "bg-primary" : "bg-step-pending"
+                className={`h-1 rounded-full transition-all duration-500 ${
+                  step.id <= currentStep ? "bg-primary w-6" : "bg-step-pending w-2"
                 }`}
               />
             ))}
@@ -60,44 +60,44 @@ const Index = () => {
 
           {/* Step title + navigation */}
           {currentStep > 0 && (
-            <div className="px-6 pb-4">
+            <div className="px-6 pb-5">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="mb-3"
+                  className="mb-4"
                 >
-                  <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
                     Step {currentStep} of 5
                   </span>
-                  <h2 className="text-xl font-bold text-foreground">{activeStep?.title}</h2>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-xl">{activeStep?.description}</p>
+                  <h2 className="text-lg font-bold text-foreground tracking-tight">{activeStep?.title}</h2>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-xl leading-relaxed">{activeStep?.description}</p>
                 </motion.div>
               </AnimatePresence>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={prev}
                   disabled={currentStep <= 1}
-                  className="flex items-center gap-1 px-4 py-2 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1 px-4 py-2 rounded-md border border-border text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
                 >
-                  <ArrowLeft size={16} /> Back
+                  <ArrowLeft size={14} /> Back
                 </button>
                 {currentStep < 5 ? (
                   <button
                     onClick={next}
-                    className="flex items-center gap-1 px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-1 px-5 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
                   >
-                    Next Step <ArrowRight size={16} />
+                    Next <ArrowRight size={14} />
                   </button>
                 ) : (
                   <button
                     onClick={reset}
-                    className="flex items-center gap-1 px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-1 px-5 py-2 rounded-md bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
                   >
-                    <RotateCcw size={16} /> Start Over
+                    <RotateCcw size={14} /> Start Over
                   </button>
                 )}
               </div>
@@ -106,7 +106,7 @@ const Index = () => {
         </div>
 
         {/* Cost sidebar */}
-        <aside className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-border bg-card p-5">
+        <aside className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-border bg-card/50 backdrop-blur-sm p-5">
           <CostSidebar currentStep={currentStep} />
         </aside>
       </div>
